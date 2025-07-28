@@ -1,5 +1,6 @@
 import 'package:club_location_first_task/view/card_list.dart';
 import 'package:club_location_first_task/view_model/club_view_model.dart';
+import 'package:club_location_first_task/view_model/fetch_distance.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -12,6 +13,11 @@ class FindClubScreen extends StatefulWidget {
 }
 
 class _FindClubScreenState extends State<FindClubScreen> {
+  Future<double> fetchDistance({required String x, required String y}) async {
+    return await calculateDistance(
+        targetLat: double.parse(x), targetLng: double.parse(y));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -26,11 +32,34 @@ class _FindClubScreenState extends State<FindClubScreen> {
     return Consumer<ClubViewModel>(
       builder: (context, viewModel, child) {
         if (viewModel.isLoading) {
-          return CircularProgressIndicator();
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Loading clubs...'),
+              ],
+            ),
+          );
         }
 
         if (viewModel.error != null) {
-          return Text('Error: ${viewModel.error}');
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('Error: ${viewModel.error}'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => viewModel.fetchClubs(),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
         }
         return Scaffold(
           backgroundColor: Colors.white,
@@ -55,7 +84,7 @@ class _FindClubScreenState extends State<FindClubScreen> {
                         Row(
                           children: [
                             Icon(Icons.location_on_outlined),
-                            Text("Newtwon, USA"),
+                            Text("Newtown, USA"),
                           ],
                         )
                       ],
@@ -139,8 +168,7 @@ class _FindClubScreenState extends State<FindClubScreen> {
                                     FontAwesomeIcons.soap,
                                 ],
                                 'check': club.membershipMandatory,
-                                'distance':
-                                    5.0, // You might want to calculate this based on latitude/longitude
+                                'distance': 0.0,
                                 'logo': club.logo,
                                 'image': club.locationImage1,
                               })

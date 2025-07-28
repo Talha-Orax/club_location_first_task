@@ -3,7 +3,7 @@ import 'package:club_location_first_task/view_model/club_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
   runApp(const MainApp());
 }
 

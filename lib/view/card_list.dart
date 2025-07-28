@@ -29,12 +29,43 @@ class CardListWidget extends StatelessWidget {
                   margin: const EdgeInsets.all(6),
                   height: 100,
                   width: 90,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(clubImage),
-                      fit: BoxFit.cover,
-                    ),
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      clubImage,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.sports_tennis,
+                              size: 40,
+                              color: Colors.grey,
+                            ),
+                            Text(
+                              "Image failed",
+                            )
+                          ],
+                        ),
+                      ),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 Expanded(
@@ -129,12 +160,33 @@ class CardListWidget extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 25,
-                        backgroundImage: NetworkImage(logo),
-                        backgroundColor: Colors.white,
-                        onBackgroundImageError: (exception, stackTrace) =>
-                            debugPrint('Image load error: $exception'),
+                      SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: ClipOval(
+                          child: Image.network(
+                            logo,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              color: Colors.grey[200],
+                              child: const Icon(
+                                Icons.sports_basketball,
+                                size: 30,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
                       const SizedBox(
                         height: 35,
