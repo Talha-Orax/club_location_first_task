@@ -15,7 +15,7 @@ class CardListWidget extends StatelessWidget {
         final bool membership = item['check'];
         final double distance = item['distance'];
         final String logo = item['logo'];
-
+        final String clubImage = item['image'];
         return Card(
           elevation: 2,
           color: Colors.white,
@@ -30,8 +30,8 @@ class CardListWidget extends StatelessWidget {
                   height: 100,
                   width: 90,
                   decoration: BoxDecoration(
-                    image: const DecorationImage(
-                      image: AssetImage('assets/images/image.png'),
+                    image: DecorationImage(
+                      image: NetworkImage(clubImage),
                       fit: BoxFit.cover,
                     ),
                     borderRadius: BorderRadius.circular(10),
@@ -44,15 +44,32 @@ class CardListWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          "${item['title']} - ${item['subtitle']}",
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w500),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Text(
+                                item['title'],
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Text(
+                                item['subtitle'],
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                            )
+                          ],
                         ),
                         const SizedBox(height: 2),
                         Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                          spacing: 6,
+                          runSpacing: 6,
                           children: icons.map((icon) {
                             return Container(
                               padding: const EdgeInsets.all(3),
@@ -69,7 +86,7 @@ class CardListWidget extends StatelessWidget {
                                 ],
                               ),
                               child:
-                                  Icon(icon, size: 20, color: Colors.black87),
+                                  Icon(icon, size: 17, color: Colors.black87),
                             );
                           }).toList(),
                         ),
@@ -115,9 +132,12 @@ class CardListWidget extends StatelessWidget {
                       CircleAvatar(
                         radius: 25,
                         backgroundImage: NetworkImage(logo),
+                        backgroundColor: Colors.white,
+                        onBackgroundImageError: (exception, stackTrace) =>
+                            debugPrint('Image load error: $exception'),
                       ),
-                      SizedBox(
-                        height: 25,
+                      const SizedBox(
+                        height: 35,
                       ),
                       Text("$distance"),
                     ],
