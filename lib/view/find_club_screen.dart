@@ -1,3 +1,4 @@
+import 'package:club_location_first_task/view/filter_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -143,7 +144,31 @@ class _FindClubScreenState extends State<FindClubScreen> {
                           const SizedBox(width: 8),
                           // Filter icon
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                barrierColor: Colors.black.withOpacity(0.5),
+                                useSafeArea: true,
+                                builder: (context) => DraggableScrollableSheet(
+                                  initialChildSize: 0.9,
+                                  minChildSize: 0.5,
+                                  maxChildSize: 0.95,
+                                  builder: (_, scrollController) => Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(35),
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0, horizontal: 15.0),
+                                    child: const FilterScreen(),
+                                  ),
+                                ),
+                              );
+                            },
                             icon: const Icon(Icons.filter_alt_outlined),
                             style: IconButton.styleFrom(
                               shape: RoundedRectangleBorder(
