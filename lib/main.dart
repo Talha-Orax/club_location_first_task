@@ -24,9 +24,17 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => ClubViewModel(),
-      child: const MaterialApp(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: HomeScreen(),
+        theme: ThemeData(
+          textTheme: const TextTheme(
+            bodyMedium: TextStyle(fontSize: 14.0),
+            bodyLarge: TextStyle(fontSize: 16.0),
+            titleMedium: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            titleLarge: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+          ),
+        ),
+        home: const HomeScreen(),
       ),
     );
   }

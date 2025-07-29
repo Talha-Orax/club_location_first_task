@@ -15,26 +15,15 @@ class FindClubScreen extends StatefulWidget {
 
 class _FindClubScreenState extends State<FindClubScreen> {
   Map<int, double> _clubDistances = {};
-  bool _loadingDistances = false;
-  String _currentLocation = "Loading location..."; // Add this line
+  String _currentLocation = "Loading location...";
 
   Future<void> _loadDistances() async {
     if (mounted) {
-      setState(() {
-        _loadingDistances = true;
-      });
-
       try {
         final clubViewModel = context.read<ClubViewModel>();
         _clubDistances = await clubViewModel.getAllClubDistances();
       } catch (e) {
         print('Error loading distances: $e');
-      } finally {
-        if (mounted) {
-          setState(() {
-            _loadingDistances = false;
-          });
-        }
       }
     }
   }
@@ -91,84 +80,99 @@ class _FindClubScreenState extends State<FindClubScreen> {
             ),
           );
         }
+
         return Scaffold(
           backgroundColor: Colors.white,
-          body: Padding(
-            padding: const EdgeInsets.only(left: 15, top: 40, right: 15),
-            child: Container(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Find a Club",
+          body: SafeArea(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header section with flexible layout
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    spacing: 8.0,
+                    runSpacing: 10.0,
+                    children: [
+                      // Left side - Title and Location
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Find a Club",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 30)),
-                        Row(
-                          children: [
-                            Icon(Icons.location_on_outlined),
-                            Text(
-                              _currentLocation,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 28,
                             ),
-                          ],
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      width: 40,
-                    ),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(Icons.search),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.location_on_outlined, size: 16),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  _currentLocation,
+                                  style: const TextStyle(fontSize: 14),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(Icons.filter_alt_outlined),
+
+                      // Right side - Icons and Avatar
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Search icon
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.search),
+                            style: IconButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(color: Colors.grey.shade300),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Filter icon
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.filter_alt_outlined),
+                            style: IconButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(color: Colors.grey.shade300),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Profile avatar
+                          const CircleAvatar(
+                            radius: 25,
+                            backgroundImage: NetworkImage(
+                                'https://img.icons8.com/external-flat-circle-design-circle/66/external-Profile-Avatar-web-and-networking-flat-circle-design-circle.png'),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    const CircleAvatar(
-                      radius: 28,
-                      backgroundImage: NetworkImage(
-                          'https://img.icons8.com/external-flat-circle-design-circle/66/external-Profile-Avatar-web-and-networking-flat-circle-design-circle.png'),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  "Nearby Clubs",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: Container(
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+                  const Text(
+                    "Nearby Clubs",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Club list
+                  Expanded(
                     child: CardListWidget(
                       data: viewModel.clubs
                           .map((club) => {
@@ -239,9 +243,9 @@ class _FindClubScreenState extends State<FindClubScreen> {
                           .toList(),
                     ),
                   ),
-                )
-              ],
-            )),
+                ],
+              ),
+            ),
           ),
         );
       },
