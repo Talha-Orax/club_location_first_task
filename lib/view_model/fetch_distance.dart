@@ -1,6 +1,46 @@
 // ignore: depend_on_referenced_packages
 import 'dart:math';
+
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+
+class FetchDistance {
+  static Future<String> showCurrentPosition() async {
+    // Check permissions and location service
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return 'Location services disabled';
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return 'Location permission denied';
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return 'Location permissions denied permanently';
+    }
+
+    // Get current position
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+
+      return placemarks.isNotEmpty
+          ? '${placemarks[0].locality}, ${placemarks[0].country}'
+          : 'Unknown location';
+    } catch (e) {
+      return 'Error getting location';
+    }
+  }
+}
 
 Future<double> calculateDistance(
     {required double? targetLat, required double? targetLng}) async {

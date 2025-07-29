@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:club_location_first_task/view/card_list.dart';
 import 'package:club_location_first_task/view_model/club_view_model.dart';
+import 'package:club_location_first_task/view_model/fetch_distance.dart';
 
 class FindClubScreen extends StatefulWidget {
   const FindClubScreen({super.key});
@@ -15,6 +16,7 @@ class FindClubScreen extends StatefulWidget {
 class _FindClubScreenState extends State<FindClubScreen> {
   Map<int, double> _clubDistances = {};
   bool _loadingDistances = false;
+  String _currentLocation = "Loading location..."; // Add this line
 
   Future<void> _loadDistances() async {
     if (mounted) {
@@ -44,6 +46,14 @@ class _FindClubScreenState extends State<FindClubScreen> {
     Future.microtask(() async {
       await context.read<ClubViewModel>().fetchClubs();
       await _loadDistances();
+
+      // Load current location
+      String location = await FetchDistance.showCurrentPosition();
+      if (mounted) {
+        setState(() {
+          _currentLocation = location;
+        });
+      }
     });
   }
 
@@ -93,18 +103,20 @@ class _FindClubScreenState extends State<FindClubScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Column(
+                    Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Find a Club",
+                        const Text("Find a Club",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 30)),
                         Row(
                           children: [
                             Icon(Icons.location_on_outlined),
-                            Text("Newtown, USA"),
+                            Text(
+                              _currentLocation,
+                            ),
                           ],
                         )
                       ],
@@ -166,27 +178,58 @@ class _FindClubScreenState extends State<FindClubScreen> {
                                 'subtitle': club.state.length > 12
                                     ? "${club.state.substring(0, 12)}..."
                                     : club.state,
-                                'icons': [
-                                  // Parse facilities string to determine which icons to show
-                                  if (club.facilities.contains('toilets'))
-                                    FontAwesomeIcons.toilet,
-                                  if (club.facilities.contains('showers'))
-                                    FontAwesomeIcons.shower,
-                                  if (club.facilities.contains('changerooms'))
-                                    FontAwesomeIcons.personDress,
-                                  if (club.facilities.contains('food'))
-                                    FontAwesomeIcons.pizzaSlice,
-                                  if (club.facilities.contains('drinks'))
-                                    FontAwesomeIcons.martiniGlassCitrus,
-                                  if (club.facilities.contains('alcohol'))
-                                    FontAwesomeIcons.wineBottle,
-                                  if (club.facilities.contains('parking'))
-                                    FontAwesomeIcons.squareParking,
-                                  if (club.facilities.contains('pool'))
-                                    FontAwesomeIcons.personSwimming,
-                                  if (club.facilities.contains('sauna'))
-                                    FontAwesomeIcons.soap,
-                                ],
+                                'icons': () {
+                                  // Use switch case to determine icons based on facilities
+                                  List<IconData> facilityIcons = [];
+
+                                  // Split the facilities string into individual facilities
+                                  List<String> facilitiesList =
+                                      club.facilities.split(',');
+
+                                  for (String facility in facilitiesList) {
+                                    String trimmed = facility.trim();
+                                    switch (trimmed) {
+                                      case 'toilets':
+                                        facilityIcons
+                                            .add(FontAwesomeIcons.toilet);
+                                        break;
+                                      case 'showers':
+                                        facilityIcons
+                                            .add(FontAwesomeIcons.shower);
+                                        break;
+                                      case 'changerooms':
+                                        facilityIcons
+                                            .add(FontAwesomeIcons.personDress);
+                                        break;
+                                      case 'food':
+                                        facilityIcons
+                                            .add(FontAwesomeIcons.pizzaSlice);
+                                        break;
+                                      case 'drinks':
+                                        facilityIcons.add(FontAwesomeIcons
+                                            .martiniGlassCitrus);
+                                        break;
+                                      case 'alcohol':
+                                        facilityIcons
+                                            .add(FontAwesomeIcons.wineBottle);
+                                        break;
+                                      case 'parking':
+                                        facilityIcons.add(
+                                            FontAwesomeIcons.squareParking);
+                                        break;
+                                      case 'pool':
+                                        facilityIcons.add(
+                                            FontAwesomeIcons.personSwimming);
+                                        break;
+                                      case 'sauna':
+                                        facilityIcons
+                                            .add(FontAwesomeIcons.soap);
+                                        break;
+                                    }
+                                  }
+
+                                  return facilityIcons;
+                                }(),
                                 'check': club.membershipMandatory,
                                 'distance':
                                     _clubDistances[club.masterId] ?? 0.0,
