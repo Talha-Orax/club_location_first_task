@@ -1,4 +1,5 @@
 // ignore: depend_on_referenced_packages
+import 'dart:math';
 import 'package:geolocator/geolocator.dart';
 
 Future<double> calculateDistance(
@@ -31,14 +32,25 @@ Future<double> calculateDistance(
       locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high, distanceFilter: 100));
 
-  // Calculate distance in meters
-  double distanceInMeters = Geolocator.distanceBetween(
-    position.latitude,
-    position.longitude,
-    targetLat,
-    targetLng,
-  );
+  double _degreeToRadian(double degree) {
+    return degree * pi / 180;
+  }
 
-  // Optionally convert to kilometers
-  return distanceInMeters / 1000;
+  double calculateDistance() {
+    final double lat1Rad = _degreeToRadian(position.latitude);
+    final double lon1Rad = _degreeToRadian(position.longitude);
+    final double lat2Rad = _degreeToRadian(targetLat);
+    final double lon2Rad = _degreeToRadian(targetLng);
+
+    final double dlat = lat2Rad - lat1Rad;
+    final double dlon = lon2Rad - lon1Rad;
+    final double a = pow(sin(dlat / 2), 2) +
+        cos(lat1Rad) * cos(lat2Rad) * pow(sin(dlon / 2), 2);
+    final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    const double radiusOfEarthKm = 6371.0;
+    return radiusOfEarthKm * c;
+  }
+
+  return calculateDistance();
 }
