@@ -1,9 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+
 import 'package:club_location_first_task/view/card_list.dart';
 import 'package:club_location_first_task/view_model/club_view_model.dart';
-import 'package:club_location_first_task/view_model/fetch_distance.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class FindClubScreen extends StatefulWidget {
   const FindClubScreen({super.key});
@@ -13,17 +13,37 @@ class FindClubScreen extends StatefulWidget {
 }
 
 class _FindClubScreenState extends State<FindClubScreen> {
-  Future<double> fetchDistance({required String x, required String y}) async {
-    return await calculateDistance(
-        targetLat: double.parse(x), targetLng: double.parse(y));
+  Map<int, double> _clubDistances = {};
+  bool _loadingDistances = false;
+
+  Future<void> _loadDistances() async {
+    if (mounted) {
+      setState(() {
+        _loadingDistances = true;
+      });
+
+      try {
+        final clubViewModel = context.read<ClubViewModel>();
+        _clubDistances = await clubViewModel.getAllClubDistances();
+      } catch (e) {
+        print('Error loading distances: $e');
+      } finally {
+        if (mounted) {
+          setState(() {
+            _loadingDistances = false;
+          });
+        }
+      }
+    }
   }
 
   @override
   void initState() {
     super.initState();
     // Load the clubs when the screen is first displayed
-    Future.microtask(() {
-      context.read<ClubViewModel>().fetchClubs();
+    Future.microtask(() async {
+      await context.read<ClubViewModel>().fetchClubs();
+      await _loadDistances();
     });
   }
 
@@ -168,7 +188,8 @@ class _FindClubScreenState extends State<FindClubScreen> {
                                     FontAwesomeIcons.soap,
                                 ],
                                 'check': club.membershipMandatory,
-                                'distance': 0.0,
+                                'distance':
+                                    _clubDistances[club.masterId] ?? 0.0,
                                 'logo': club.logo,
                                 'image': club.locationImage1,
                               })

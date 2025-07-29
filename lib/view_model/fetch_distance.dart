@@ -29,8 +29,8 @@ Future<double> calculateDistance(
 
   // Get current position
   Position position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high, distanceFilter: 100));
+    desiredAccuracy: LocationAccuracy.high,
+  );
 
   double _degreeToRadian(double degree) {
     return degree * pi / 180;

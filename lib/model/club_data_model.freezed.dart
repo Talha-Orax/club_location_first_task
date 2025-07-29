@@ -20,8 +20,10 @@ ApiResponse _$ApiResponseFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ApiResponse {
-  bool get success => throw _privateConstructorUsedError;
-  String get message => throw _privateConstructorUsedError;
+  bool get success =>
+      throw _privateConstructorUsedError; // Was the API call successful?
+  String get message =>
+      throw _privateConstructorUsedError; // Success/error message
   DataContainer get data => throw _privateConstructorUsedError;
 
   /// Serializes this ApiResponse to a JSON map.
@@ -150,8 +152,10 @@ class _$ApiResponseImpl implements _ApiResponse {
 
   @override
   final bool success;
+// Was the API call successful?
   @override
   final String message;
+// Success/error message
   @override
   final DataContainer data;
 
@@ -200,9 +204,9 @@ abstract class _ApiResponse implements ApiResponse {
       _$ApiResponseImpl.fromJson;
 
   @override
-  bool get success;
+  bool get success; // Was the API call successful?
   @override
-  String get message;
+  String get message; // Success/error message
   @override
   DataContainer get data;
 

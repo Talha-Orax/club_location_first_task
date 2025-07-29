@@ -3,7 +3,7 @@ import 'package:club_location_first_task/model/club_data_model.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  Future<List<ClubDataModel>> fetchLocations() async {
+  Future<DataContainer> fetchLocations() async {
     final response = await http.get(
       Uri.parse("http://209.97.211.101/apiv1/locations.ashx"),
       headers: {
@@ -19,7 +19,7 @@ class ApiService {
     if (response.statusCode == 200) {
       final apiResponse = ApiResponse.fromJson(jsonDecode(response.body));
       if (apiResponse.success) {
-        return apiResponse.data.locations;
+        return apiResponse.data;
       } else {
         throw Exception(apiResponse.message);
       }

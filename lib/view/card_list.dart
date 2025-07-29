@@ -191,7 +191,8 @@ class CardListWidget extends StatelessWidget {
                       const SizedBox(
                         height: 35,
                       ),
-                      Text("$distance"),
+                      Text("$distance km",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
                 )

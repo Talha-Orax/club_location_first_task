@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:club_location_first_task/model/club_data_model.dart';
 import 'package:club_location_first_task/model/api_calling.dart';
+import 'package:club_location_first_task/view_model/fetch_distance.dart';
 
 class ClubViewModel extends ChangeNotifier {
   final ApiService _apiService = ApiService();
 
   // State variables
-  //these are Private variables so no one directyl acces them,to access them we used getter functions
-  List<ClubDataModel> _clubs = [];
+  //these are Private variables so no one directly access them, to access them we used getter functions
+  DataContainer? _dataContainer;
   bool _isLoading = false;
   String? _error;
 
   // Getters functions to access variables
-  List<ClubDataModel> get clubs => _clubs; //this get the data of the clubs
-  bool get isLoading =>
-      _isLoading; // this get the info about data loading or not
-  String? get error => _error; // throws the error on api calling
+  List<ClubDataModel> get clubs => _dataContainer?.locations ?? [];
+  bool get isLoading => _isLoading;
+  String? get error => _error;
 
   // Load clubs from API
   Future<void> fetchClubs() async {
@@ -24,7 +24,7 @@ class ClubViewModel extends ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      _clubs = await _apiService.fetchLocations();
+      _dataContainer = await _apiService.fetchLocations();
 
       _isLoading = false;
       notifyListeners();
@@ -37,8 +37,10 @@ class ClubViewModel extends ChangeNotifier {
 
   // Get club by ID
   ClubDataModel? getClubById(int masterId) {
+    if (_dataContainer == null) return null;
+
     try {
-      return _clubs.firstWhere((club) => club.masterId == masterId);
+      return clubs.firstWhere((club) => club.masterId == masterId);
     } catch (e) {
       return null;
     }
@@ -46,14 +48,14 @@ class ClubViewModel extends ChangeNotifier {
 
   // Search clubs by name
   List<ClubDataModel> searchClubs(String query) {
-    return _clubs
+    return clubs
         .where((club) => club.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
   }
 
   // Filter clubs by city
   List<ClubDataModel> filterByCity(String city) {
-    return _clubs
+    return clubs
         .where((club) => club.city.toLowerCase() == city.toLowerCase())
         .toList();
   }
@@ -65,7 +67,7 @@ class ClubViewModel extends ChangeNotifier {
     Set<String> allFacilities = {};
 
     // Go through each club
-    for (var club in _clubs) {
+    for (var club in clubs) {
       // Split the facilities string into a list
       List<String> clubFacilities = club.facilities.split(',');
 
@@ -83,9 +85,41 @@ class ClubViewModel extends ChangeNotifier {
   ///
   // Filter clubs by facility
   List<ClubDataModel> filterByFacility(String facility) {
-    return _clubs
+    return clubs
         .where((club) =>
             club.facilities.toLowerCase().contains(facility.toLowerCase()))
         .toList();
+  }
+
+  // Get distance for a club
+  Future<double> getClubDistance(ClubDataModel club) async {
+    try {
+      double? lat = double.tryParse(club.latitude);
+      double? lng = double.tryParse(club.longitude);
+
+      if (lat == null || lng == null) {
+        return 0.0;
+      }
+
+      double distance = await calculateDistance(targetLat: lat, targetLng: lng);
+      // Round to one decimal place
+      return double.parse(distance.toStringAsFixed(1));
+    } catch (e) {
+      print('Error calculating distance: $e');
+      return 0.0;
+    }
+  }
+
+  // Get distances for all clubs
+  Future<Map<int, double>> getAllClubDistances() async {
+    Map<int, double> distances = {};
+
+    for (var club in clubs) {
+      double distance = await getClubDistance(club);
+      print(distance);
+      distances[club.masterId] = distance;
+    }
+
+    return distances;
   }
 }
