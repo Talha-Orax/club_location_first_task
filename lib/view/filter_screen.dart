@@ -42,14 +42,15 @@ class _FilterScreenState extends State<FilterScreen> {
           ],
         ),
 
-        const SizedBox(height: 25),
+        // const SizedBox(height: 25),
+        const Spacer(),
 
         // Sport section
         const Text(
           'Sport',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 10),
+        const Spacer(),
         Wrap(
           spacing: 8,
           children: sportOptions.map((sport) {
@@ -61,6 +62,7 @@ class _FilterScreenState extends State<FilterScreen> {
                     : const Color.fromARGB(255, 228, 178, 30),
                 width: 1,
               ),
+              elevation: 5,
               label: Text(sport),
               labelStyle: TextStyle(
                 color: isSelected ? Colors.white : Colors.black,
@@ -85,14 +87,16 @@ class _FilterScreenState extends State<FilterScreen> {
           }).toList(),
         ),
 
-        const SizedBox(height: 20),
+        // const SizedBox(height: 20),
+        const Spacer(),
 
         // Distance section
         const Text(
           'Distance',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 10),
+        // const SizedBox(height: 10),
+        const Spacer(),
         Stack(
           alignment: Alignment.topCenter,
           children: [
@@ -102,12 +106,14 @@ class _FilterScreenState extends State<FilterScreen> {
               max: 50,
               overlayColor: MaterialStateProperty.all(
                   const Color.fromARGB(255, 243, 243, 243).withOpacity(0.8)),
-              divisions: 10,
+              divisions: 50,
               onChanged: (value) {
                 setState(() {
                   distanceValue = value;
                 });
               },
+              inactiveColor:
+                  const Color.fromARGB(255, 179, 160, 54).withOpacity(0.2),
               secondaryActiveColor: Colors.amber,
               activeColor: const Color.fromARGB(255, 190, 138, 58),
               label: '${distanceValue.toStringAsFixed(0)} km',
@@ -125,14 +131,16 @@ class _FilterScreenState extends State<FilterScreen> {
           ),
         ),
 
-        const SizedBox(height: 20),
+        // const SizedBox(height: 20),
+        const Spacer(),
 
         // Price section
         const Text(
           'Price',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 10),
+        // const SizedBox(height: 10),
+        const Spacer(),
         Stack(
           alignment: Alignment.topCenter,
           children: [
@@ -142,12 +150,14 @@ class _FilterScreenState extends State<FilterScreen> {
               max: 500,
               overlayColor: MaterialStateProperty.all(
                   const Color.fromARGB(255, 243, 243, 243).withOpacity(0.8)),
-              divisions: 10,
+              divisions: 500,
               onChanged: (value) {
                 setState(() {
                   priceValue = value;
                 });
               },
+              inactiveColor:
+                  const Color.fromARGB(255, 179, 160, 54).withOpacity(0.2),
               label: '\$${priceValue.toStringAsFixed(0)}',
               secondaryActiveColor: Colors.amber,
               activeColor: const Color.fromARGB(255, 190, 138, 58),
@@ -165,14 +175,16 @@ class _FilterScreenState extends State<FilterScreen> {
           ),
         ),
 
-        const SizedBox(height: 20),
+        // const SizedBox(height: 20),
+        const Spacer(),
 
         // Size section
         const Text(
           'Size',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 10),
+        // const SizedBox(height: 10),
+        const Spacer(),
         Center(
           child: Wrap(
             alignment: WrapAlignment.center,
@@ -180,6 +192,7 @@ class _FilterScreenState extends State<FilterScreen> {
             children: ['Single', 'Double'].map((size) {
               bool isSelected = selectedSize == size;
               return ChoiceChip(
+                elevation: 5,
                 side: BorderSide(
                   color: isSelected
                       ? Colors.transparent
@@ -207,7 +220,9 @@ class _FilterScreenState extends State<FilterScreen> {
           ),
         ),
 
-        const Spacer(),
+        const SizedBox(
+          height: 25,
+        ),
 
         // Action buttons
         Row(
@@ -258,6 +273,7 @@ class _FilterScreenState extends State<FilterScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   foregroundColor: Colors.white,
                   backgroundColor: const Color.fromARGB(255, 190, 138, 58),
+                  elevation: 5,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

@@ -26,7 +26,7 @@ class CardListWidget extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  margin: const EdgeInsets.all(6),
+                  margin: const EdgeInsets.all(2),
                   height: 100,
                   width: 90,
                   child: ClipRRect(
@@ -70,31 +70,23 @@ class CardListWidget extends StatelessWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    padding: const EdgeInsets.fromLTRB(2, 2, 1, 2),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Row(
+                          mainAxisSize: MainAxisSize.max,
                           children: [
                             Expanded(
-                              flex: 1,
                               child: Text(
                                 item['title'],
-                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
+                                    fontSize: 15, fontWeight: FontWeight.w500),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ),
-                            Expanded(
-                              flex: 1,
-                              child: Text(
-                                item['subtitle'],
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                            )
                           ],
                         ),
                         const SizedBox(height: 2),
@@ -130,21 +122,23 @@ class CardListWidget extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(2)),
                             child: const Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 2),
+                                  horizontal: 2, vertical: 1),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
                                     Icons.art_track_rounded,
+                                    size: 20,
                                     color: Color.fromARGB(255, 218, 172, 22),
                                   ),
                                   SizedBox(
-                                    width: 2,
+                                    width: 1,
                                   ),
                                   Text(
                                     "Membership Required",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w500),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 10),
                                   )
                                 ],
                               ),
@@ -156,43 +150,43 @@ class CardListWidget extends StatelessWidget {
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
+                    horizontal: 1,
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: ClipOval(
-                          child: Image.network(
-                            logo,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
-                              color: Colors.grey[200],
-                              child: const Icon(
-                                Icons.sports_basketball,
-                                size: 30,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Container(
-                                color: Colors.grey[200],
-                                child: const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                            },
+                      Image.network(
+                        logo,
+                        height: 40,
+                        width: 40,
+                        // fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: const Icon(
+                            Icons.sports_basketball,
+                            size: 30,
+                            color: Colors.grey,
                           ),
                         ),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(
                         height: 35,
                       ),
                       Text("$distance km",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w400, fontSize: 10)),
                     ],
                   ),
                 )

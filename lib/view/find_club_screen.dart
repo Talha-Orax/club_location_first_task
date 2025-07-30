@@ -58,7 +58,6 @@ class _FindClubScreenState extends State<FindClubScreen> {
               children: [
                 CircularProgressIndicator(),
                 SizedBox(height: 16),
-                Text('Loading clubs...'),
               ],
             ),
           );
@@ -87,46 +86,46 @@ class _FindClubScreenState extends State<FindClubScreen> {
           body: SafeArea(
             child: Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header section with flexible layout
-                  Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    spacing: 8.0,
-                    runSpacing: 10.0,
+                  // Header section with fixed layout
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Left side - Title and Location
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Find a Club",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 28,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.location_on_outlined, size: 16),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  _currentLocation,
-                                  style: const TextStyle(fontSize: 14),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                      // Left side - Title and Location (takes available space)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Find a Club",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 28,
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const Icon(Icons.location_on_outlined,
+                                    size: 16),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    _currentLocation,
+                                    style: const TextStyle(fontSize: 14),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
 
-                      // Right side - Icons and Avatar
+                      // Right side - Icons and Avatar (fixed position)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -152,9 +151,11 @@ class _FindClubScreenState extends State<FindClubScreen> {
                                 barrierColor: Colors.black.withOpacity(0.5),
                                 useSafeArea: true,
                                 builder: (context) => DraggableScrollableSheet(
-                                  initialChildSize: 0.9,
+                                  initialChildSize: 0.7, // Reduced from 0.9
                                   minChildSize: 0.5,
                                   maxChildSize: 0.95,
+                                  expand:
+                                      false, // Ensures it takes minimum required size
                                   builder: (_, scrollController) => Container(
                                     decoration: const BoxDecoration(
                                       color: Colors.white,
@@ -189,7 +190,7 @@ class _FindClubScreenState extends State<FindClubScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   const Text(
                     "Nearby Clubs",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
@@ -201,12 +202,8 @@ class _FindClubScreenState extends State<FindClubScreen> {
                     child: CardListWidget(
                       data: viewModel.clubs
                           .map((club) => {
-                                'title': club.name.length > 15
-                                    ? "${club.name.substring(0, 15)}..."
-                                    : club.name,
-                                'subtitle': club.state.length > 12
-                                    ? "${club.state.substring(0, 12)}..."
-                                    : club.state,
+                                'title': club.name,
+                                'subtitle': club.state,
                                 'icons': () {
                                   // Use switch case to determine icons based on facilities
                                   List<IconData> facilityIcons = [];
