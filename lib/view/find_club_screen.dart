@@ -1,3 +1,4 @@
+import 'package:club_location_first_task/model/filter_model.dart';
 import 'package:club_location_first_task/view/filter_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -143,8 +144,11 @@ class _FindClubScreenState extends State<FindClubScreen> {
                           const SizedBox(width: 8),
                           // Filter icon
                           IconButton(
-                            onPressed: () {
-                              showModalBottomSheet(
+                            onPressed: () async {
+                              // final clubViewModel =
+                              // context.read<ClubViewModel>();
+                              final result =
+                                  await showModalBottomSheet<FilterModel?>(
                                 context: context,
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
@@ -169,6 +173,21 @@ class _FindClubScreenState extends State<FindClubScreen> {
                                   ),
                                 ),
                               );
+                              if (result != null) {
+                                // Apply the selected filters
+                                await viewModel.applyFilters(result);
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Filters applied: ${viewModel.clubs.length} clubs found',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                      duration: const Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              }
                             },
                             icon: const Icon(Icons.filter_alt_outlined),
                             style: IconButton.styleFrom(

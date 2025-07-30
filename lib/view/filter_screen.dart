@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:club_location_first_task/model/filter_model.dart';
 
 class FilterScreen extends StatefulWidget {
   const FilterScreen({Key? key}) : super(key: key);
@@ -9,12 +10,11 @@ class FilterScreen extends StatefulWidget {
 
 class _FilterScreenState extends State<FilterScreen> {
   // State variables for filters
-  List<String> sportOptions = ['Padel', 'Tennis', 'Pickleball', 'Squash'];
-  List<String> selectedSports = ['Padel']; // Default selected sport
+  List<SportType> selectedSports = [SportType.padel]; // Default selected sport
 
   double distanceValue = 10.0; // Default distance in km
   double priceValue = 250.0; // Default price
-  String selectedSize = ''; // Selected court size
+  CourtSizeType? selectedSize; // Selected court size
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class _FilterScreenState extends State<FilterScreen> {
         const Spacer(),
         Wrap(
           spacing: 8,
-          children: sportOptions.map((sport) {
+          children: SportType.values.map((sport) {
             bool isSelected = selectedSports.contains(sport);
             return FilterChip(
               side: BorderSide(
@@ -63,7 +63,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 width: 1,
               ),
               elevation: 5,
-              label: Text(sport),
+              label: Text(sport.name),
               labelStyle: TextStyle(
                 color: isSelected ? Colors.white : Colors.black,
               ),
@@ -103,10 +103,10 @@ class _FilterScreenState extends State<FilterScreen> {
             Slider(
               value: distanceValue,
               min: 0,
-              max: 50,
+              max: 1000,
               overlayColor: MaterialStateProperty.all(
                   const Color.fromARGB(255, 243, 243, 243).withOpacity(0.8)),
-              divisions: 50,
+              divisions: 1000,
               onChanged: (value) {
                 setState(() {
                   distanceValue = value;
@@ -126,7 +126,7 @@ class _FilterScreenState extends State<FilterScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('0km'),
-              Text('50km'),
+              Text('1000km'),
             ],
           ),
         ),
@@ -147,7 +147,7 @@ class _FilterScreenState extends State<FilterScreen> {
             Slider(
               value: priceValue,
               min: 0,
-              max: 500,
+              max: 800,
               overlayColor: MaterialStateProperty.all(
                   const Color.fromARGB(255, 243, 243, 243).withOpacity(0.8)),
               divisions: 500,
@@ -170,7 +170,7 @@ class _FilterScreenState extends State<FilterScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('\$0'),
-              Text('\$500'),
+              Text('\$800'),
             ],
           ),
         ),
@@ -189,7 +189,7 @@ class _FilterScreenState extends State<FilterScreen> {
           child: Wrap(
             alignment: WrapAlignment.center,
             spacing: 20,
-            children: ['Single', 'Double'].map((size) {
+            children: CourtSizeType.values.map((size) {
               bool isSelected = selectedSize == size;
               return ChoiceChip(
                 elevation: 5,
@@ -199,7 +199,7 @@ class _FilterScreenState extends State<FilterScreen> {
                       : const Color.fromARGB(255, 228, 178, 30),
                   width: 1,
                 ),
-                label: Text(size),
+                label: Text(size.name),
                 labelStyle: TextStyle(
                   color: isSelected ? Colors.white : Colors.black,
                 ),
@@ -207,7 +207,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 showCheckmark: false,
                 onSelected: (selected) {
                   setState(() {
-                    selectedSize = selected ? size : '';
+                    selectedSize = selected ? size : null;
                   });
                 },
                 selectedColor: const Color.fromARGB(255, 190, 138, 58),
@@ -232,10 +232,10 @@ class _FilterScreenState extends State<FilterScreen> {
               child: TextButton(
                 onPressed: () {
                   setState(() {
-                    selectedSports = ['Padel'];
+                    selectedSports = [SportType.padel];
                     distanceValue = 10.0;
                     priceValue = 250.0;
-                    selectedSize = '';
+                    selectedSize = null; // Reset selected size
                   });
                 },
                 style: OutlinedButton.styleFrom(
@@ -261,13 +261,14 @@ class _FilterScreenState extends State<FilterScreen> {
               flex: 2,
               child: ElevatedButton(
                 onPressed: () {
-                  // Here you would apply the filter and pass back results
-                  Navigator.pop(context, {
-                    'sports': selectedSports,
-                    'distance': distanceValue,
-                    'price': priceValue,
-                    'size': selectedSize,
-                  });
+                  FilterModel filter = FilterModel(
+                    sport:
+                        selectedSports.isNotEmpty ? selectedSports.first : null,
+                    size: selectedSize,
+                    price: priceValue.toStringAsFixed(0),
+                    distance: distanceValue.toStringAsFixed(0),
+                  );
+                  Navigator.pop(context, filter);
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),

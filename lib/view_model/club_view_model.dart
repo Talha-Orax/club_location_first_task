@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:club_location_first_task/model/club_data_model.dart';
 import 'package:club_location_first_task/model/api_calling.dart';
 import 'package:club_location_first_task/view_model/fetch_distance.dart';
+import 'package:club_location_first_task/model/filter_model.dart';
 
 class ClubViewModel extends ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -11,6 +12,8 @@ class ClubViewModel extends ChangeNotifier {
   DataContainer? _dataContainer;
   bool _isLoading = false;
   String? _error;
+  FilterModel? currentFilters; // Store current active filters
+  bool hasFiltersApplied = false; // Track if filters are active
 
   // Getters functions to access variables
   List<ClubDataModel> get clubs => _dataContainer?.locations ?? [];
@@ -32,6 +35,40 @@ class ClubViewModel extends ChangeNotifier {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+// Apply filters to the club list
+  Future<void> applyFilters(FilterModel filter) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _dataContainer = await _apiService.fetchfilteredLocations(filter);
+      currentFilters = filter; // Store the applied filters
+      hasFiltersApplied = true; // Mark filters as applied
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+// Reset filters to show all clubs
+  Future<void> resetFilters() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _dataContainer = await _apiService.fetchLocations();
+      currentFilters = null; // Clear the applied filters
+      hasFiltersApplied = false; // Mark filters as not applied
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return;
     }
   }
 
