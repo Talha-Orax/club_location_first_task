@@ -12,8 +12,8 @@ class _FilterScreenState extends State<FilterScreen> {
   // State variables for filters
   List<SportType> selectedSports = [SportType.padel]; // Default selected sport
 
-  double distanceValue = 10.0; // Default distance in km
-  double priceValue = 250.0; // Default price
+  double distanceValue = 0.0; // Default distance in km
+  double priceValue = 0.0; // Default price
   CourtSizeType? selectedSize; // Selected court size
 
   @override

@@ -42,6 +42,7 @@ class FetchDistance {
   }
 }
 
+// Calculate distance between current location and target coordinates
 Future<double> calculateDistance(
     {required double? targetLat, required double? targetLng}) async {
   if (targetLat == null || targetLng == null) return 0.0;

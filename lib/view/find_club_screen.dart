@@ -175,17 +175,31 @@ class _FindClubScreenState extends State<FindClubScreen> {
                               );
                               if (result != null) {
                                 // Apply the selected filters
-                                await viewModel.applyFilters(result);
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Filters applied: ${viewModel.clubs.length} clubs found',
+                                try {
+                                  await viewModel.applyFilters(result);
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Filters applied: ${viewModel.clubs.length} clubs found',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        duration: const Duration(seconds: 2),
                                       ),
-                                      backgroundColor: Colors.green,
-                                      duration: const Duration(seconds: 2),
-                                    ),
-                                  );
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    print(viewModel.applyFilters(result));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'Error applying filters: ${e.toString()}'),
+                                        backgroundColor: Colors.red,
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
                                 }
                               }
                             },

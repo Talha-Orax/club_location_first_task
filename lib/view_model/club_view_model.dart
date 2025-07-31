@@ -43,7 +43,29 @@ class ClubViewModel extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
+      // Get filtered Data
       _dataContainer = await _apiService.fetchfilteredLocations(filter);
+
+      if (filter.distance != null && _dataContainer != null) {
+        double? maxdistance = double.tryParse(filter.distance!);
+        if (maxdistance == null) {
+          throw FormatException("Invalid distance value: ${filter.distance}");
+        }
+        if (maxdistance is double) {
+          print(maxdistance);
+        }
+        // check which type of maxdistance we are getting
+
+        // Filter clubs based on distance
+        List<ClubDataModel> filteredClubs = await filterClubsByDistance(
+          _dataContainer!.locations,
+          maxdistance,
+        );
+        // print('Found ${filteredClubs.length} clubs within $maxdistance km');
+        _dataContainer = DataContainer(locations: filteredClubs);
+        print('Filtered clubs: ${_dataContainer!.locations.length}');
+      }
+      // If distance filter is not applied, use the original data
       currentFilters = filter; // Store the applied filters
       hasFiltersApplied = true; // Mark filters as applied
       _isLoading = false;
@@ -159,4 +181,25 @@ class ClubViewModel extends ChangeNotifier {
 
     return distances;
   }
+}
+
+Future<List<ClubDataModel>> filterClubsByDistance(
+  List<ClubDataModel> clubs,
+  double maxDistance,
+) async {
+  List<ClubDataModel> filteredClubs = [];
+
+  for (var club in clubs) {
+    double distance = await calculateDistance(
+      targetLat: double.parse(club.latitude),
+      targetLng: double.parse(club.longitude),
+    );
+
+    if (distance <= maxDistance) {
+      filteredClubs.add(club);
+    }
+  }
+  print('Filtering ${clubs.length} clubs by distance (max: $maxDistance km)');
+
+  return filteredClubs;
 }
