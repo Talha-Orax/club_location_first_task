@@ -145,8 +145,6 @@ class _FindClubScreenState extends State<FindClubScreen> {
                           // Filter icon
                           IconButton(
                             onPressed: () async {
-                              // final clubViewModel =
-                              // context.read<ClubViewModel>();
                               final result =
                                   await showModalBottomSheet<FilterModel?>(
                                 context: context,
@@ -169,7 +167,9 @@ class _FindClubScreenState extends State<FindClubScreen> {
                                     ),
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 12.0, horizontal: 15.0),
-                                    child: const FilterScreen(),
+                                    child: FilterScreen(
+                                      initialFilter: viewModel.currentFilters,
+                                    ),
                                   ),
                                 ),
                               );
@@ -224,9 +224,41 @@ class _FindClubScreenState extends State<FindClubScreen> {
                   ),
 
                   const SizedBox(height: 20),
-                  const Text(
-                    "Nearby Clubs",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Nearby Clubs",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500),
+                      ),
+                      if (context.watch<ClubViewModel>().hasFiltersApplied)
+                        TextButton.icon(
+                          onPressed: () async {
+                            await context.read<ClubViewModel>().resetFilters();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Filters cleared',
+                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                                backgroundColor:
+                                    Color.fromARGB(255, 219, 136, 28),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.filter_alt_off_outlined,
+                              size: 12),
+                          label: const Text('Clear Filters',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.orange)),
+                          style: TextButton.styleFrom(
+                              foregroundColor: Colors.orange),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 12),
 

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:club_location_first_task/model/filter_model.dart';
 
 class FilterScreen extends StatefulWidget {
-  const FilterScreen({Key? key}) : super(key: key);
+  final FilterModel? initialFilter;
+
+  const FilterScreen({Key? key, this.initialFilter}) : super(key: key);
 
   @override
   State<FilterScreen> createState() => _FilterScreenState();
@@ -10,11 +12,31 @@ class FilterScreen extends StatefulWidget {
 
 class _FilterScreenState extends State<FilterScreen> {
   // State variables for filters
-  List<SportType> selectedSports = [SportType.padel]; // Default selected sport
+  List<SportType> selectedSports = [];
+  double? distanceValue; // Distance in km
+  double? priceValue; // Price
+  CourtSizeType? selectedSize; // Court size
 
-  double distanceValue = 0.0; // Default distance in km
-  double priceValue = 0.0; // Default price
-  CourtSizeType? selectedSize; // Selected court size
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with values from initialFilter if provided
+    if (widget.initialFilter != null) {
+      if (widget.initialFilter!.sport != null) {
+        selectedSports = [widget.initialFilter!.sport!];
+      }
+
+      if (widget.initialFilter!.distance != null) {
+        distanceValue = double.tryParse(widget.initialFilter!.distance!);
+      }
+
+      if (widget.initialFilter!.price != null) {
+        priceValue = double.tryParse(widget.initialFilter!.price!);
+      }
+
+      selectedSize = widget.initialFilter!.size;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,12 +123,12 @@ class _FilterScreenState extends State<FilterScreen> {
           alignment: Alignment.topCenter,
           children: [
             Slider(
-              value: distanceValue,
+              value: distanceValue ?? 3600.0, // Default to 10 km if null
               min: 0,
-              max: 1000,
+              max: 5000,
               overlayColor: MaterialStateProperty.all(
                   const Color.fromARGB(255, 243, 243, 243).withOpacity(0.8)),
-              divisions: 1000,
+              divisions: 5000,
               onChanged: (value) {
                 setState(() {
                   distanceValue = value;
@@ -116,7 +138,7 @@ class _FilterScreenState extends State<FilterScreen> {
                   const Color.fromARGB(255, 179, 160, 54).withOpacity(0.2),
               secondaryActiveColor: Colors.amber,
               activeColor: const Color.fromARGB(255, 190, 138, 58),
-              label: '${distanceValue.toStringAsFixed(0)} km',
+              label: '${distanceValue?.toStringAsFixed(0)} km',
             ),
           ],
         ),
@@ -126,7 +148,7 @@ class _FilterScreenState extends State<FilterScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('0km'),
-              Text('1000km'),
+              Text('5000km'),
             ],
           ),
         ),
@@ -145,12 +167,12 @@ class _FilterScreenState extends State<FilterScreen> {
           alignment: Alignment.topCenter,
           children: [
             Slider(
-              value: priceValue,
+              value: priceValue ?? 850.0, // Default to 850 if null
               min: 0,
-              max: 800,
+              max: 1500,
               overlayColor: MaterialStateProperty.all(
                   const Color.fromARGB(255, 243, 243, 243).withOpacity(0.8)),
-              divisions: 500,
+              divisions: 1500,
               onChanged: (value) {
                 setState(() {
                   priceValue = value;
@@ -158,7 +180,7 @@ class _FilterScreenState extends State<FilterScreen> {
               },
               inactiveColor:
                   const Color.fromARGB(255, 179, 160, 54).withOpacity(0.2),
-              label: '\$${priceValue.toStringAsFixed(0)}',
+              label: '\$${priceValue?.toStringAsFixed(0)}',
               secondaryActiveColor: Colors.amber,
               activeColor: const Color.fromARGB(255, 190, 138, 58),
             ),
@@ -170,7 +192,7 @@ class _FilterScreenState extends State<FilterScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('\$0'),
-              Text('\$800'),
+              Text('\$1500'),
             ],
           ),
         ),
@@ -232,9 +254,9 @@ class _FilterScreenState extends State<FilterScreen> {
               child: TextButton(
                 onPressed: () {
                   setState(() {
-                    selectedSports = [SportType.padel];
-                    distanceValue = 10.0;
-                    priceValue = 250.0;
+                    selectedSports = [];
+                    distanceValue = 3800.0; // Reset to default 10 km
+                    priceValue = 850.0; // Reset to default 850
                     selectedSize = null; // Reset selected size
                   });
                 },
@@ -265,8 +287,8 @@ class _FilterScreenState extends State<FilterScreen> {
                     sport:
                         selectedSports.isNotEmpty ? selectedSports.first : null,
                     size: selectedSize,
-                    price: priceValue.toStringAsFixed(0),
-                    distance: distanceValue.toStringAsFixed(0),
+                    price: priceValue?.toStringAsFixed(0),
+                    distance: distanceValue?.toStringAsFixed(0),
                   );
                   Navigator.pop(context, filter);
                 },
