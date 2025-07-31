@@ -14,6 +14,10 @@ class ClubViewModel extends ChangeNotifier {
   String? _error;
   FilterModel? currentFilters; // Store current active filters
   bool hasFiltersApplied = false; // Track if filters are active
+  double? customLatitude; // Custom latitude for user-defined location
+  double? customLongitude; // Custom longitude for user-defined location
+  String? currentLocationName;
+  bool usingCustomLocation = false; // Track if custom location is used
 
   // Getters functions to access variables
   List<ClubDataModel> get clubs => _dataContainer?.locations ?? [];
@@ -38,6 +42,50 @@ class ClubViewModel extends ChangeNotifier {
     }
   }
 
+//set custom location
+  Future<void> setCustomLocation(
+      {required double latitude,
+      required double longitude,
+      required String locationName}) async {
+    customLatitude = latitude;
+    customLongitude = longitude;
+    currentLocationName = locationName;
+    usingCustomLocation = true; // Mark that we are using a custom location
+    notifyListeners();
+  }
+
+  // Reset to default location
+  Future<void> resetToUserLocation() async {
+    customLatitude = null;
+    customLongitude = null;
+    currentLocationName =
+        await FetchDistance.showCurrentPosition(); // Reset to default name
+    usingCustomLocation = false; // Mark that we are not using a custom location
+    notifyListeners();
+  }
+
+// Get unique cities from all clubs
+  List<String> get uniqueCities {
+    Set<String> citySet = {};
+    for (var club in clubs) {
+      if (club.city.isNotEmpty) {
+        citySet.add(club.city);
+      }
+    }
+    return citySet.toList()..sort(); // Return sorted list
+  }
+
+// Get unique countries/states from all clubs
+  List<String> get uniqueStates {
+    Set<String> stateSet = {};
+    for (var club in clubs) {
+      if (club.state.isNotEmpty) {
+        stateSet.add(club.state);
+      }
+    }
+    return stateSet.toList()..sort(); // Return sorted list
+  }
+
 // Apply filters to the club list
   Future<void> applyFilters(FilterModel filter) async {
     try {
@@ -55,15 +103,23 @@ class ClubViewModel extends ChangeNotifier {
           // check which type of maxdistance we are getting
         }
 
-        if (maxdistance is double) {
-          print(maxdistance);
-        }
-
         // Filter clubs based on distance
-        List<ClubDataModel> filteredClubs = await filterClubsByDistance(
-          _dataContainer!.locations,
-          maxdistance,
-        );
+        List<ClubDataModel> filteredClubs;
+        if (usingCustomLocation && customLatitude != null && customLongitude != null) {
+          // Use custom location coordinates if available
+          filteredClubs = await filterClubsByDistance(
+            _dataContainer!.locations,
+            maxdistance,
+            startLat: customLatitude,
+            startLng: customLongitude,
+          );
+        } else {
+          // Use default device location
+          filteredClubs = await filterClubsByDistance(
+            _dataContainer!.locations,
+            maxdistance,
+          );
+        }
 
         print('Found ${filteredClubs.length} clubs within $maxdistance km');
         _dataContainer = DataContainer(locations: filteredClubs);
@@ -166,7 +222,24 @@ class ClubViewModel extends ChangeNotifier {
         return 0.0;
       }
       // Calculate distance using Haversine formula
-      double distance = await calculateDistance(targetLat: lat, targetLng: lng);
+      double distance;
+      if (usingCustomLocation &&
+          customLatitude != null &&
+          customLongitude != null) {
+        // Use custom location if available
+        distance = await FetchDistance.calculateDistance(
+          startLat: customLatitude,
+          startLng: customLongitude,
+          targetLat: lat,
+          targetLng: lng,
+        );
+      } else {
+        // Use current device location
+        distance = await FetchDistance.calculateDistance(
+          targetLat: lat,
+          targetLng: lng,
+        );
+      }
       // Round to one decimal place
       return double.parse(distance.toStringAsFixed(1));
     } catch (e) {
@@ -189,8 +262,9 @@ class ClubViewModel extends ChangeNotifier {
   }
 }
 
+// Filter clubs by distance radius
 Future<List<ClubDataModel>> filterClubsByDistance(
-    List<ClubDataModel> clubs, double maxDistance) async {
+    List<ClubDataModel> clubs, double maxDistance, {double? startLat, double? startLng}) async {
   List<ClubDataModel> filteredClubs = [];
 
   for (var club in clubs) {
@@ -205,10 +279,22 @@ Future<List<ClubDataModel>> filterClubsByDistance(
       }
 
       // Calculate distance
-      double distance = await calculateDistance(
-        targetLat: lat,
-        targetLng: lng,
-      );
+      double distance;
+      if (startLat != null && startLng != null) {
+        // Use provided starting coordinates
+        distance = await FetchDistance.calculateDistance(
+          startLat: startLat,
+          startLng: startLng,
+          targetLat: lat,
+          targetLng: lng,
+        );
+      } else {
+        // Use device location
+        distance = await FetchDistance.calculateDistance(
+          targetLat: lat,
+          targetLng: lng,
+        );
+      }
 
       if (distance <= maxDistance) {
         filteredClubs.add(club);

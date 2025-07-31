@@ -1,5 +1,6 @@
 import 'package:club_location_first_task/model/filter_model.dart';
 import 'package:club_location_first_task/view/filter_screen.dart';
+import 'package:club_location_first_task/view/search_location_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -115,7 +116,10 @@ class _FindClubScreenState extends State<FindClubScreen> {
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    _currentLocation,
+                                    viewModel.usingCustomLocation
+                                        ? viewModel.currentLocationName ??
+                                            "No location selected"
+                                        : _currentLocation,
                                     style: const TextStyle(fontSize: 14),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -132,7 +136,18 @@ class _FindClubScreenState extends State<FindClubScreen> {
                         children: [
                           // Search icon
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const SearchLocationScreen(),
+                                ),
+                              );
+                              // Reload distances when returning from search screen
+                              _loadDistances();
+                              setState(() {});
+                            },
                             icon: const Icon(Icons.search),
                             style: IconButton.styleFrom(
                               shape: RoundedRectangleBorder(
@@ -263,72 +278,85 @@ class _FindClubScreenState extends State<FindClubScreen> {
                   const SizedBox(height: 12),
 
                   // Club list
-                  Expanded(
-                    child: CardListWidget(
-                      data: viewModel.clubs
-                          .map((club) => {
-                                'title': club.name,
-                                'subtitle': club.state,
-                                'icons': () {
-                                  // Use switch case to determine icons based on facilities
-                                  List<IconData> facilityIcons = [];
+                  FutureBuilder<Map<int, double>>(
+                    future: viewModel.getAllClubDistances(),
+                    builder: (context, snapshot) {
+                      // Use the latest distances if available, otherwise use the cached ones
+                      final Map<int, double> distances =
+                          snapshot.data ?? _clubDistances;
 
-                                  // Split the facilities string into individual facilities
-                                  List<String> facilitiesList =
-                                      club.facilities.split(',');
+                      // Update the cached distances if new data is available
+                      if (snapshot.hasData) {
+                        _clubDistances = snapshot.data!;
+                      }
 
-                                  for (String facility in facilitiesList) {
-                                    String trimmed = facility.trim();
-                                    switch (trimmed) {
-                                      case 'toilets':
-                                        facilityIcons
-                                            .add(FontAwesomeIcons.toilet);
-                                        break;
-                                      case 'showers':
-                                        facilityIcons
-                                            .add(FontAwesomeIcons.shower);
-                                        break;
-                                      case 'changerooms':
-                                        facilityIcons
-                                            .add(FontAwesomeIcons.personDress);
-                                        break;
-                                      case 'food':
-                                        facilityIcons
-                                            .add(FontAwesomeIcons.pizzaSlice);
-                                        break;
-                                      case 'drinks':
-                                        facilityIcons.add(FontAwesomeIcons
-                                            .martiniGlassCitrus);
-                                        break;
-                                      case 'alcohol':
-                                        facilityIcons
-                                            .add(FontAwesomeIcons.wineBottle);
-                                        break;
-                                      case 'parking':
-                                        facilityIcons.add(
-                                            FontAwesomeIcons.squareParking);
-                                        break;
-                                      case 'pool':
-                                        facilityIcons.add(
-                                            FontAwesomeIcons.personSwimming);
-                                        break;
-                                      case 'sauna':
-                                        facilityIcons
-                                            .add(FontAwesomeIcons.soap);
-                                        break;
-                                    }
-                                  }
+                      return Expanded(
+                        child: CardListWidget(
+                          data: viewModel.clubs
+                              .map((club) => {
+                                    'title': club.name,
+                                    'subtitle': club.state,
+                                    'icons': () {
+                                      // Use switch case to determine icons based on facilities
+                                      List<IconData> facilityIcons = [];
 
-                                  return facilityIcons;
-                                }(),
-                                'check': club.membershipMandatory,
-                                'distance':
-                                    _clubDistances[club.masterId] ?? 0.0,
-                                'logo': club.logo,
-                                'image': club.locationImage1,
-                              })
-                          .toList(),
-                    ),
+                                      // Split the facilities string into individual facilities
+                                      List<String> facilitiesList =
+                                          club.facilities.split(',');
+
+                                      for (String facility in facilitiesList) {
+                                        String trimmed = facility.trim();
+                                        switch (trimmed) {
+                                          case 'toilets':
+                                            facilityIcons
+                                                .add(FontAwesomeIcons.toilet);
+                                            break;
+                                          case 'showers':
+                                            facilityIcons
+                                                .add(FontAwesomeIcons.shower);
+                                            break;
+                                          case 'changerooms':
+                                            facilityIcons.add(
+                                                FontAwesomeIcons.personDress);
+                                            break;
+                                          case 'food':
+                                            facilityIcons.add(
+                                                FontAwesomeIcons.pizzaSlice);
+                                            break;
+                                          case 'drinks':
+                                            facilityIcons.add(FontAwesomeIcons
+                                                .martiniGlassCitrus);
+                                            break;
+                                          case 'alcohol':
+                                            facilityIcons.add(
+                                                FontAwesomeIcons.wineBottle);
+                                            break;
+                                          case 'parking':
+                                            facilityIcons.add(
+                                                FontAwesomeIcons.squareParking);
+                                            break;
+                                          case 'pool':
+                                            facilityIcons.add(FontAwesomeIcons
+                                                .personSwimming);
+                                            break;
+                                          case 'sauna':
+                                            facilityIcons
+                                                .add(FontAwesomeIcons.soap);
+                                            break;
+                                        }
+                                      }
+
+                                      return facilityIcons;
+                                    }(),
+                                    'check': club.membershipMandatory,
+                                    'distance': distances[club.masterId] ?? 0.0,
+                                    'logo': club.logo,
+                                    'image': club.locationImage1,
+                                  })
+                              .toList(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

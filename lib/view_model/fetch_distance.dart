@@ -40,48 +40,81 @@ class FetchDistance {
       return 'Error getting location';
     }
   }
-}
 
-// Calculate distance between current location and target coordinates
-Future<double> calculateDistance(
-    {required double? targetLat, required double? targetLng}) async {
-  if (targetLat == null || targetLng == null) return 0.0;
-  bool serviceEnabled;
-  LocationPermission permission;
+  // Calculate distance between coordinates
+  // If startLat and startLng are provided, use them as the starting point
+  // Otherwise, use the current device location as the starting point
+  static Future<double> calculateDistance({
+    double? startLat,
+    double? startLng,
+    required double? targetLat,
+    required double? targetLng,
+  }) async {
+    if (targetLat == null || targetLng == null) return 0.0;
 
-  // Check if location services are enabled
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    return Future.error('Location services are disabled.');
-  }
-
-  // Request permission
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      return Future.error('Location permissions are denied');
+    // If starting coordinates are provided, use them directly
+    if (startLat != null && startLng != null) {
+      // Use the haversine formula with the provided coordinates
+      return _calculateHaversineDistance(
+        startLat: startLat,
+        startLng: startLng,
+        endLat: targetLat,
+        endLng: targetLng,
+      );
     }
+
+    // Otherwise, get current device location
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    // Request permission
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error('Location permissions are permanently denied.');
+    }
+
+    // Get current position
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    // Use the current position as the starting point
+    return _calculateHaversineDistance(
+      startLat: position.latitude,
+      startLng: position.longitude,
+      endLat: targetLat,
+      endLng: targetLng,
+    );
   }
 
-  if (permission == LocationPermission.deniedForever) {
-    return Future.error('Location permissions are permanently denied.');
-  }
+  // Helper function to calculate distance using the Haversine formula
+  static double _calculateHaversineDistance({
+    required double startLat,
+    required double startLng,
+    required double endLat,
+    required double endLng,
+  }) {
+    double _degreeToRadian(double degree) {
+      return degree * pi / 180;
+    }
 
-  // Get current position
-  Position position = await Geolocator.getCurrentPosition(
-    desiredAccuracy: LocationAccuracy.high,
-  );
-
-  double _degreeToRadian(double degree) {
-    return degree * pi / 180;
-  }
-
-  double calculateDistance() {
-    final double lat1Rad = _degreeToRadian(position.latitude);
-    final double lon1Rad = _degreeToRadian(position.longitude);
-    final double lat2Rad = _degreeToRadian(targetLat);
-    final double lon2Rad = _degreeToRadian(targetLng);
+    final double lat1Rad = _degreeToRadian(startLat);
+    final double lon1Rad = _degreeToRadian(startLng);
+    final double lat2Rad = _degreeToRadian(endLat);
+    final double lon2Rad = _degreeToRadian(endLng);
 
     final double dlat = lat2Rad - lat1Rad;
     final double dlon = lon2Rad - lon1Rad;
@@ -92,6 +125,4 @@ Future<double> calculateDistance(
     const double radiusOfEarthKm = 6371.0;
     return radiusOfEarthKm * c;
   }
-
-  return calculateDistance();
 }
