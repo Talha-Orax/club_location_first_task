@@ -51,6 +51,9 @@ class ClubViewModel extends ChangeNotifier {
     customLongitude = longitude;
     currentLocationName = locationName;
     usingCustomLocation = true; // Mark that we are using a custom location
+
+    // Reset filters when location changes
+    await resetFilters(); // This will clear filters and reload data
     notifyListeners();
   }
 
@@ -61,6 +64,9 @@ class ClubViewModel extends ChangeNotifier {
     currentLocationName =
         await FetchDistance.showCurrentPosition(); // Reset to default name
     usingCustomLocation = false; // Mark that we are not using a custom location
+
+    // Reset filters when location changes
+    await resetFilters(); // This will clear filters and reload data
     notifyListeners();
   }
 
@@ -105,7 +111,9 @@ class ClubViewModel extends ChangeNotifier {
 
         // Filter clubs based on distance
         List<ClubDataModel> filteredClubs;
-        if (usingCustomLocation && customLatitude != null && customLongitude != null) {
+        if (usingCustomLocation &&
+            customLatitude != null &&
+            customLongitude != null) {
           // Use custom location coordinates if available
           filteredClubs = await filterClubsByDistance(
             _dataContainer!.locations,
@@ -264,8 +272,16 @@ class ClubViewModel extends ChangeNotifier {
 
 // Filter clubs by distance radius
 Future<List<ClubDataModel>> filterClubsByDistance(
-    List<ClubDataModel> clubs, double maxDistance, {double? startLat, double? startLng}) async {
+    List<ClubDataModel> clubs, double maxDistance,
+    {double? startLat, double? startLng}) async {
   List<ClubDataModel> filteredClubs = [];
+
+  print('Filtering ${clubs.length} clubs by distance (max: $maxDistance km)');
+  if (startLat != null && startLng != null) {
+    print('Using custom location coordinates: $startLat, $startLng');
+  } else {
+    print('Using device location coordinates');
+  }
 
   for (var club in clubs) {
     try {
@@ -304,7 +320,7 @@ Future<List<ClubDataModel>> filterClubsByDistance(
       continue; // Skip this club if there's an error
     }
   }
-  print('Filtering ${clubs.length} clubs by distance (max: $maxDistance km)');
+  print('Found ${filteredClubs.length} clubs within $maxDistance km');
 
   return filteredClubs;
 }

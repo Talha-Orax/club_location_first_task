@@ -146,6 +146,7 @@ class _FindClubScreenState extends State<FindClubScreen> {
                               );
                               // Reload distances when returning from search screen
                               _loadDistances();
+                              // Refresh UI to reflect any filter changes
                               setState(() {});
                             },
                             icon: const Icon(Icons.search),
@@ -196,9 +197,14 @@ class _FindClubScreenState extends State<FindClubScreen> {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
-                                          'Filters applied: ${viewModel.clubs.length} clubs found',
+                                          '🔍 ${viewModel.clubs.length} clubs found',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          textAlign: TextAlign.center,
                                         ),
-                                        backgroundColor: Colors.green,
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 97, 190, 100),
                                         duration: const Duration(seconds: 2),
                                       ),
                                     );
@@ -254,7 +260,7 @@ class _FindClubScreenState extends State<FindClubScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                  'Filters cleared',
+                                  '☰ Filters cleared',
                                   style: TextStyle(fontWeight: FontWeight.w500),
                                 ),
                                 backgroundColor:

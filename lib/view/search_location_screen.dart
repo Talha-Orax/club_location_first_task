@@ -87,11 +87,17 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
 
       if (mounted) {
         Navigator.pop(context);
+
+        bool hadFilters = viewModel
+            .hasFiltersApplied; // Check if filters were applied before reset
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Location updated to $location'),
+            content: Text(hadFilters
+                ? 'Location updated to $location and filters reset'
+                : 'Location updated to $location'),
             backgroundColor: Colors.green,
-            duration: const Duration(seconds: 1),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -160,11 +166,17 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
 
                 if (mounted) {
                   Navigator.pop(context);
+
+                  bool hadFilters = viewModel
+                      .hasFiltersApplied; // Check if filters were applied before reset
+
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Reset to your current location'),
+                    SnackBar(
+                      content: Text(hadFilters
+                          ? 'Reset to your current location and filters cleared'
+                          : 'Reset to your current location'),
                       backgroundColor: Colors.blue,
-                      duration: Duration(seconds: 1),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 }
