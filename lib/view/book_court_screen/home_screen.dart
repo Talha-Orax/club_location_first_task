@@ -1,4 +1,4 @@
-import 'package:club_location_first_task/view/find_club_screen.dart';
+import 'package:club_location_first_task/view/book_court_screen/find_club_screen.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
           NavigationDestination(
               icon: Icon(Icons.diversity_3_sharp), label: "Community"),
         ],
+        // height: 10,
         indicatorColor: const Color.fromARGB(103, 185, 129, 108),
       ),
     );

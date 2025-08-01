@@ -29,7 +29,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
 
   void _loadLocations() {
     final clubViewModel = context.read<ClubViewModel>();
-    // Extract unique city and country combinations
+    // Extract unique city and country combinations in a set
     Set<String> uniqueLocations = {};
 
     for (var club in clubViewModel.clubs) {
@@ -39,17 +39,22 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
     }
 
     setState(() {
+      // Convert the set to a list and sort it
       _allLocations = uniqueLocations.toList()..sort();
+      // Initialize filtered locations with all locations
       _filteredLocations = List.from(_allLocations);
     });
   }
 
+// Filter search results based on user input
   void _filterSearchResults(String query) {
+    // If the input is empty, show all locations
     if (query.isEmpty) {
       setState(() {
         _filteredLocations = List.from(_allLocations);
         _isSearching = false;
       });
+      // If the input is not empty, filter locations that contain the query
     } else {
       List<String> searchResults = _allLocations
           .where((location) =>
@@ -63,6 +68,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
     }
   }
 
+//
   void _onLocationSelected(String location) async {
     final viewModel = context.read<ClubViewModel>();
     // Find a club in this city to get coordinates

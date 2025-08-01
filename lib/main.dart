@@ -1,4 +1,4 @@
-import 'package:club_location_first_task/view/home_screen.dart';
+import 'package:club_location_first_task/view/book_court_screen/home_screen.dart';
 import 'package:club_location_first_task/view_model/club_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
